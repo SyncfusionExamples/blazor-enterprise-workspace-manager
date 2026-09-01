@@ -1,0 +1,63 @@
+/* ProjectsModule.razor.css - master detail layout
+   Scroll contract
+   ----------------
+   .prj-master-detail     grid (320px 1fr); min-width:0 so the 1fr track can
+                          shrink below the SfGrid's natural min-content width,
+                          which would otherwise overflow the tab.
+   .prj-tree              fixed 320px column; owns its own vertical scroll
+   .prj-detail            1fr column; min-width:0; overflow:hidden so the
+                          SfGrid's own horizontal scrollbar is reachable.
+*/
+
+.prj-root { display: flex; flex-direction: column; gap: 12px; min-width: 0; }
+.prj-header h2 { font-size: 18px; margin: 0; }
+.prj-sub { margin: 0; color: #616161; font-size: 12.5px; }
+
+.prj-master-detail {
+    display: grid;
+    grid-template-columns: 320px minmax(0, 1fr);  /* minmax keeps the 1fr
+                                                    track shrinkable below
+                                                    its content size */
+    gap: 12px;
+    min-height: 520px;
+    min-width: 0;                                  /* the whole grid can shrink */
+}
+@media (max-width: 1024px) { .prj-master-detail { grid-template-columns: 1fr; } }
+
+.prj-tree { background: #fff; border: 1px solid #e1e1e1; border-radius: 6px; display: flex; flex-direction: column; min-height: 0; min-width: 0; }
+.prj-tree__head { display: flex; align-items: center; gap: 6px; padding: 10px 12px; border-bottom: 1px solid #f0f0f0; font-weight: 600; font-size: 13px; color: #1f1f1f; }
+.prj-tree .ewm-project-tree.e-treeview { flex: 1; overflow: auto; border: 0; padding: 4px 0; }
+
+.prj-detail {
+    background: #fff;
+    border: 1px solid #e1e1e1;
+    border-radius: 6px;
+    display: flex;
+    flex-direction: column;
+    min-height: 0;
+    min-width: 0;                  /* the detail column can shrink */
+    overflow: hidden;              /* clip so the SfGrid's own scrollbars engage */
+}
+.prj-detail__head { display: flex; align-items: center; justify-content: space-between; padding: 10px 14px; border-bottom: 1px solid #f0f0f0; flex-wrap: wrap; gap: 8px; }
+.prj-detail__head h3 { font-size: 14px; margin: 0; }
+.prj-detail__sub  { margin: 2px 0 0; color: #616161; font-size: 12.5px; }
+.prj-detail__chips { display: flex; gap: 6px; flex-wrap: wrap; }
+
+.prj-chip {
+    display: inline-flex; align-items: center;
+    font-size: 11.5px; font-weight: 600;
+    padding: 2px 8px; border-radius: 12px;
+    background: #f0f0f0; color: #1f1f1f;
+}
+.prj-chip--ok { background: #dff5df; color: #107c10; }
+
+.prj-tag {
+    display: inline-flex; align-items: center;
+    font-size: 11px; font-weight: 600;
+    padding: 1px 6px; border-radius: 10px;
+}
+.prj-tag--ok      { background: #dff5df; color: #107c10; }
+.prj-tag--info    { background: #dceeff; color: #0f6cbd; }
+.prj-tag--warning { background: #f8e8c4; color: #9a5c00; }
+.prj-tag--danger  { background: #fbdcdc; color: #a4262c; }
+.prj-tag--neutral { background: #f0f0f0; color: #616161; }

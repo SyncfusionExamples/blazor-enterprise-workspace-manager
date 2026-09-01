@@ -1,0 +1,110 @@
+/* StartPage.razor.css - Syncfusion start tile grid */
+
+/* Page wrapper */
+.start-page {
+    max-width: 1180px;
+    margin: 0 auto;
+    padding: 12px 4px 32px;
+}
+
+/* Hero band */
+.start-hero {
+    background: linear-gradient(135deg, #0f1e3d 0%, #1f3a8a 100%);
+    color: #ffffff;
+    border-radius: 8px;
+    padding: 28px 32px;
+    margin-bottom: 24px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.10);
+}
+
+.start-hero__title { font-size: 22px; font-weight: 600; margin: 0 0 8px; }
+.start-hero__subtitle { font-size: 14px; color: rgba(255,255,255,0.85); margin: 0 0 16px; max-width: 780px; }
+.start-hero__actions { display: flex; gap: 8px; flex-wrap: wrap; }
+
+/* Syncfusion SfButton overrides for the dark hero band. We override
+   the Fluent 2 button chrome so the three hero actions keep the
+   original dark-banner look (ghost / primary-on-gradient). */
+.start-hero__actions .hero-btn.e-btn {
+    background: rgba(255,255,255,0.08);
+    border: 1px solid rgba(255,255,255,0.30);
+    color: #ffffff;
+    font-size: 13px;
+    padding: 6px 14px;
+    border-radius: 4px;
+    transition: background 150ms ease;
+}
+.start-hero__actions .hero-btn.e-btn:hover {
+    background: rgba(255,255,255,0.18);
+}
+.start-hero__actions .hero-btn--primary.e-btn {
+    background: #2c7ef8;
+    border-color: #2c7ef8;
+    color: #ffffff;
+}
+.start-hero__actions .hero-btn--primary.e-btn:hover {
+    background: #1f6ad8;
+    border-color: #1f6ad8;
+}
+
+/* Tile grid */
+.start-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+    gap: 12px;
+    margin-bottom: 28px;
+}
+
+/* SfCard provides the visible card chrome (border, background,
+   padding). We override the Fluent 2 default shadow / radius to
+   match the original tile look: thin border, 6px radius, no
+   shadow at rest, hover shadow on lift. Hover styles are applied
+   to the parent .e-card so lifting the inner button lifts the
+   whole card. */
+.start-tile-sf.e-card {
+    border: 1px solid #e1e1e1;
+    border-radius: 6px;
+    box-shadow: none;
+    background: #ffffff;
+    height: 100%;
+    transition: border-color 120ms ease, box-shadow 120ms ease, transform 120ms ease;
+}
+.start-tile-sf.e-card:hover {
+    border-color: #2c7ef8;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(44, 126, 248, 0.18);
+}
+.start-tile-sf.e-card .e-card-content {
+    padding: 0;
+}
+
+/* Inner click target: bare layout (icon + title + desc). No own
+   border or background — the SfCard supplies those. The button is
+   a real <button> for accessibility, but visually transparent. */
+.start-tile {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 6px;
+    padding: 16px;
+    width: 100%;
+    height: 100%;
+    text-align: left;
+    background: transparent;
+    border: 0;
+    cursor: pointer;
+    color: var(--ewm-text, #1f1f1f);
+    font-family: inherit;
+    box-sizing: border-box;
+}
+.start-tile:focus-visible {
+    outline: 2px solid #2c7ef8;
+    outline-offset: -2px;
+}
+.start-tile__icon { font-size: 22px; color: #2c7ef8; }
+.start-tile__title { font-size: 14px; font-weight: 600; }
+.start-tile__desc  { font-size: 12.5px; color: #616161; }
+
+/* Optional info card — unused for now, kept for future content. */
+.start-info { background: #fff; border: 1px solid #e1e1e1; border-radius: 6px; padding: 16px 24px; }
+.start-info h2 { font-size: 15px; margin: 0 0 8px; }
+.start-info__list { margin: 0; padding-left: 18px; font-size: 13px; line-height: 1.7; color: #1f1f1f; }

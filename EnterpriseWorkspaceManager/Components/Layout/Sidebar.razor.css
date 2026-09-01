@@ -1,0 +1,65 @@
+/* Sidebar.razor.css - left navigation panel */
+
+.sidebar {
+    display: flex;
+    flex-direction: column;
+    min-width: 0;
+    min-height: 0;          /* let the flex child (treeview) compute its own height */
+    width: 100%;
+    height: 100%;           /* the .app-body grid row is the height container */
+    background: #ffffff;
+    border-right: 1px solid #e1e1e1;
+    /* The sidebar itself owns the clip, so the tree scrolls inside it
+       regardless of any overflow:hidden the Syncfusion theme sets on
+       internal TreeView nodes. */
+/*    overflow: hidden;*/
+}
+
+.sidebar__header {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 12px 16px;
+    font-size: 12px;
+    font-weight: 600;
+    color: #616161;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    border-bottom: 1px solid #f0f0f0;
+    flex: 0 0 auto;
+}
+
+.sidebar__title { flex: 1; }
+
+/* The TreeView is the single scroll boundary inside the sidebar. We
+   force the entire internal DOM chain (which the Syncfusion Fluent 2
+   theme may otherwise cap with its own overflow:hidden) to participate
+   in our flex sizing. Every layer needs min-height:0; otherwise the
+   flex parent cannot shrink it and the scroll never engages. */
+.sidebar .ewm-treeview.e-treeview {
+    flex: 1 1 auto;
+    min-height: 0;
+    min-width: 0;
+    overflow: auto;
+    border: 0;
+    padding: 4px 0;
+    display: block;
+    height: 100%;
+}
+
+.sidebar .ewm-treeview.e-treeview .e-list-parent,
+.sidebar .ewm-treeview.e-treeview .e-treeview-parent,
+.sidebar .ewm-treeview.e-treeview ul.e-ul,
+.sidebar .ewm-treeview.e-treeview .e-list-item,
+.sidebar .ewm-treeview.e-treeview .e-node-content,
+.sidebar .ewm-treeview.e-treeview .e-text-content {
+    min-height: 0;
+    min-width: 0;
+    overflow: visible;
+}
+
+@media (max-width: 1024px) {
+    .sidebar__title { display: none; }
+    .sidebar { width: 64px; }
+    .sidebar__header { justify-content: center; padding: 12px 0; }
+}

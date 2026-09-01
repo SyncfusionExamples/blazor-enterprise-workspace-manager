@@ -1,0 +1,70 @@
+@inject NavigationManager NavigationManager
+
+<div class="top-bar" role="banner">
+    <div class="top-bar__brand">
+        <span class="top-bar__logo" aria-hidden="true">
+            <span class="e-icons e-grid-view"></span>
+        </span>
+        <span class="top-bar__title">Enterprise Workspace Manager</span>
+    </div>
+
+    <div class="top-bar__menu">
+        <SfMenu TValue="MenuItem" CssClass="ewm-menu">
+            <MenuItems>
+                <MenuItem Text="Help" IconCss="e-icons e-help">
+                    <MenuItems>
+                        <MenuItem Id="cmd-docs-blazor"
+                                  Text="Blazor Documentation"
+                                  IconCss="e-icons e-export" />
+                        <MenuItem Id="cmd-docs-grid"
+                                  Text="DataGrid Reference"
+                                  IconCss="e-icons e-table" />
+                        <MenuItem Id="cmd-docs-charts"
+                                  Text="Charts Reference"
+                                  IconCss="e-icons e-chart-area" />
+                        <MenuItem Id="cmd-docs-spreadsheet"
+                                  Text="Spreadsheet Reference"
+                                  IconCss="e-icons e-file-xls" />
+                        <MenuItem Separator="true" />
+                        <MenuItem Id="cmd-help-about"
+                                  Text="About"
+                                  IconCss="e-icons e-info" />
+                    </MenuItems>
+                </MenuItem>
+            </MenuItems>
+            <MenuEvents TValue="MenuItem" ItemSelected="@OnMenuSelect" />
+        </SfMenu>
+    </div>
+</div>
+
+@code {
+    [Parameter] public EventCallback OnHelp { get; set; }
+
+    // Single source of truth for help links - all open the official
+    // Syncfusion Blazor documentation in a new browser tab.
+    private static readonly Dictionary<string, (string Url, string Label)> HelpLinks = new()
+    {
+        ["cmd-docs-blazor"] = ("https://blazor.syncfusion.com/documentation/introduction", "Syncfusion Blazor docs"),
+        ["cmd-docs-grid"] = ("https://help.syncfusion.com/grid-sdk/blazor/data-grid/getting-started-with-web-app", "Blazor DataGrid docs"),
+        ["cmd-docs-charts"] = ("https://help.syncfusion.com/chart-sdk/blazor/charts/getting-started-with-web-app", "Blazor Charts docs"),
+        ["cmd-docs-spreadsheet"] = ("https://help.syncfusion.com/document-processing/excel/spreadsheet/blazor/getting-started", "Blazor Spreadsheet docs"),
+        ["cmd-help-about"]       = ("about:sample", "About this sample")
+    };
+
+    private void OnMenuSelect(MenuEventArgs<MenuItem> args)
+    {
+        if (args.Item is null || string.IsNullOrEmpty(args.Item.Id)) return;
+
+        if (args.Item.Id == "cmd-help-about")
+        {
+            OnHelp.InvokeAsync();
+            return;
+        }
+
+        if (HelpLinks.TryGetValue(args.Item.Id, out var link))
+        {
+            // open the Syncfusion docs in a new browser tab
+            NavigationManager.NavigateTo(link.Url, forceLoad: true);
+        }
+    }
+}

@@ -1,0 +1,93 @@
+@using Syncfusion.Blazor.Buttons
+@using Syncfusion.Blazor.Cards
+@using IconPosition = Syncfusion.Blazor.Buttons.IconPosition
+
+
+
+<div class="start-page">
+    <section class="start-hero">
+        <h1 class="start-hero__title">Welcome to the Enterprise Workspace Manager</h1>
+        <p class="start-hero__subtitle">
+            A production-style Blazor WebAssembly sample showcasing how multiple Syncfusion Blazor
+            controls work together in a Windows MDI-style cross-platform enterprise workspace.
+        </p>
+        <div class="start-hero__actions">
+            <SfButton CssClass="hero-btn hero-btn--primary"
+                     
+                      OnClick="@OpenDashboard">
+                Open Dashboard
+            </SfButton>
+
+            <SfButton CssClass="hero-btn"
+                     
+                      OnClick="@OpenEmployees">
+                Employees
+            </SfButton>
+
+            <SfButton CssClass="hero-btn"
+                  
+                      OnClick="@OpenAnalytics">
+                Analytics
+            </SfButton>
+        </div>
+    </section>
+
+<div class="start-grid">
+        @foreach (var tile in Tiles)
+        {
+            <SfCard CssClass="start-tile-sf">
+                <CardContent>
+                    <div class="start-tile" role="button" tabindex="0"
+                         @onclick="() => Open(tile)"
+                         @onkeydown="@(e => OnTileKey(e, tile))">
+                        <span class="start-tile__title">@tile.Title</span>
+                        <span class="start-tile__desc">@tile.Description</span>
+                    </div>
+                </CardContent>
+            </SfCard>
+        }
+    </div>
+
+
+</div>
+
+@code {
+    [Inject] private WorkspaceStateService Workspace { get; set; } = default!;
+
+    private record Tile(string Key, string Title, string Description, string IconCss);
+
+    private readonly List<Tile> Tiles = new()
+    {
+        new("dashboard",  "Dashboard",          "KPI tiles, revenue chart, progress and recent activity", "e-icons e-dashboard"),
+        new("employees",  "Employee Management","Full-feature grid: sort, filter, group, search, export",   "e-icons e-people"),
+        new("documents",  "PDF Document Viewer","Zoom, search, annotation",                                  "e-icons e-file-pdf"),
+        new("spreadsheet","Spreadsheet",        "Full Excel-compatible spreadsheet with formulas, charts and the Syncfusion ribbon", "e-icons e-table"),
+        new("analytics",  "Analytics",          "Pie, bar and line charts",                                  "e-icons e-chart-area"),
+        new("projects",   "Project Explorer",   "Master-detail: TreeView + Grid",                            "e-icons e-kanban"),
+    };
+
+    private void Open(Tile t) => OpenModule(t.Key, t.Title, t.IconCss);
+
+    private void OpenDashboard() => OpenModule("dashboard", "Dashboard", "e-icons e-dashboard");
+    private void OpenEmployees() => OpenModule("employees", "Employees", "e-icons e-people");
+    private void OpenAnalytics() => OpenModule("analytics", "Analytics", "e-icons e-chart-area");
+
+    // Keyboard support: tile div has role="button" tabindex="0", so a
+    // user pressing Enter or Space should activate it.
+    private void OnTileKey(KeyboardEventArgs e, Tile t)
+    {
+        if (e.Key is "Enter" or " ")
+        {
+            Open(t);
+        }
+    }
+
+    // Show the spinner, then open the module. The fire-and-forget
+    // ensures the click handler returns immediately and the spinner
+    // overlay covers the tab while the new module mounts.
+    private void OpenModule(string key, string title, string iconCss)
+    {
+        _ = Workspace.TriggerShow();
+        Workspace.OpenModule(key, title, iconCss);
+    }
+}

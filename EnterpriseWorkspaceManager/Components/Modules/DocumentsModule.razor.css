@@ -1,0 +1,15 @@
+/* DocumentsModule.razor.css - PDF viewer */
+.doc-root { display: flex; flex-direction: column; gap: 12px; height: 100%; }
+.doc-header { display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 8px; }
+.doc-header h2 { font-size: 18px; margin: 0; }
+.doc-sub { margin: 0; color: #616161; font-size: 12.5px; }
+.doc-header__actions { display: flex; gap: 6px; flex-wrap: wrap; }
+
+.ewm-btn--ghost {
+    background: #ffffff;
+    color: #1f1f1f;
+    border: 1px solid #d1d1d1;
+}
+.ewm-btn--ghost:hover { background: #f5f5f5; }
+
+.doc-pdf { flex: 1; min-height: 540px; border: 1px solid #e1e1e1; border-radius: 6px; overflow: hidden; background: #f3f3f3; }

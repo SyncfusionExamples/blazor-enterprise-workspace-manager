@@ -1,0 +1,316 @@
+@using Syncfusion.Blazor
+@using Syncfusion.Blazor.Layouts
+@using Syncfusion.Blazor.Charts
+@using Syncfusion.Blazor.Grids
+@using TextAlign = Syncfusion.Blazor.Grids.TextAlign
+
+<div class="control-section">
+    <SfDashboardLayout @ref="dashboardObject" Columns="8" CellSpacing="@Spacing" CellAspectRatio="@Ratio">
+        <DashboardLayoutPanels>
+            <DashboardLayoutPanel Column="0" Row="0" SizeX="2" SizeY="1">
+                <ContentTemplate>
+                    <div class="root-container">
+                        <div class="item-container income">
+                            <p>$43,300</p>
+                            <div class="auto-left">
+                                <span class="income-icon e-icon"></span>
+                            </div>
+                        </div>
+                        <div class="bottom-container">
+                            <p>Income</p>
+                        </div>
+                    </div>
+                </ContentTemplate>
+            </DashboardLayoutPanel>
+            <DashboardLayoutPanel Column="2" Row="0" SizeX="2" SizeY="1">
+                <ContentTemplate>
+                    <div class="root-container">
+                        <div class="item-container expense">
+                            <p>$38,060</p>
+                            <div class="auto-left">
+                                <span class="expense-icon e-icon"></span>
+                            </div>
+                        </div>
+                        <div class="bottom-container">
+                            <p>Expenses</p>
+                        </div>
+                    </div>
+                </ContentTemplate>
+            </DashboardLayoutPanel>
+            <DashboardLayoutPanel Column="4" Row="0" SizeX="2" SizeY="1">
+                <ContentTemplate>
+                    <div class="root-container">
+                        <div class="item-container balance">
+                            <p>$38,060</p>
+                            <div class="auto-left">
+                                <span class="balance-icon e-icon"></span>
+                            </div>
+                        </div>
+                        <div class="bottom-container">
+                            <p>Balance</p>
+                        </div>
+                    </div>
+                </ContentTemplate>
+            </DashboardLayoutPanel>
+            <DashboardLayoutPanel Column="6" Row="0" SizeX="2" SizeY="1">
+                <ContentTemplate>
+                    <div class="root-container">
+                        <div class="item-container transaction">
+                            <p>$38,060</p>
+                            <div class="auto-left">
+                                <span class="transaction-icon e-icon"></span>
+                            </div>
+                        </div>
+                        <div class="bottom-container">
+                            <p>Transactions</p>
+                        </div>
+                    </div>
+                </ContentTemplate>
+            </DashboardLayoutPanel>
+            <DashboardLayoutPanel Column="0" Row="1" SizeX="4" SizeY="3">
+                <HeaderTemplate>
+                    <span class="title">Income - Expense</span>
+                </HeaderTemplate>
+                <ContentTemplate>
+                    <SfChart Height="100%" Width="100%" Theme="@Theme">
+                        <ChartArea><ChartAreaBorder Width="0"></ChartAreaBorder></ChartArea>
+                        <ChartPrimaryXAxis ValueType="Syncfusion.Blazor.Charts.ValueType.DateTimeCategory" LabelFormat="MMM" IntervalType="IntervalType.Months" EdgeLabelPlacement="EdgeLabelPlacement.Shift">
+                            <ChartAxisMajorGridLines Width="0"></ChartAxisMajorGridLines>
+                        </ChartPrimaryXAxis>
+                        <ChartPrimaryYAxis LabelFormat="${value}" Minimum="1000" Maximum="9000" Interval="2000">
+                            <ChartAxisLineStyle Width="0"></ChartAxisLineStyle>
+                            <ChartAxisMajorTickLines Width="0"></ChartAxisMajorTickLines>
+                        </ChartPrimaryYAxis>
+                        <ChartTooltipSettings Enable="true"></ChartTooltipSettings>
+                        <ChartSeriesCollection>
+                            <ChartSeries DataSource="@IncomeExpenseData" Name="Income" XName="Period" Width="2"
+                                         Opacity="0.5" YName="Income" Type="ChartSeriesType.SplineArea" Fill="#00BCD7">
+                            </ChartSeries>
+                            <ChartSeries DataSource="@IncomeExpenseData" Name="Expense" XName="Period" Width="2"
+                                         Opacity="0.5" YName="Expense" Type="ChartSeriesType.SplineArea" Fill="#CDDE1F">
+                            </ChartSeries>
+                        </ChartSeriesCollection>
+                    </SfChart>
+                </ContentTemplate>
+            </DashboardLayoutPanel>
+            <DashboardLayoutPanel Column="4" Row="1" SizeX="4" SizeY="3">
+                <HeaderTemplate>
+                    <span class="title">Total Expenses</span>
+                </HeaderTemplate>
+                <ContentTemplate>
+                    <SfAccumulationChart Height="100%" Width="100%" EnableAnimation="false" EnableSmartLabels="true" Theme="@Theme">
+                        <AccumulationChartSeriesCollection>
+                            <AccumulationChartSeries DataSource="@PieRenderingData" XName="Text" YName="Y" Radius="83%" StartAngle="0" EndAngle="360" InnerRadius="50%" Palettes="@palettes">
+                                <AccumulationDataLabelSettings Visible="true" Name="X" Position="AccumulationLabelPosition.Outside">
+                                    <AccumulationChartConnector Length="10%"></AccumulationChartConnector>
+                                    <AccumulationChartDataLabelFont Size="14px" FontFamily="Roboto"></AccumulationChartDataLabelFont>
+                                </AccumulationDataLabelSettings>
+                            </AccumulationChartSeries>
+                        </AccumulationChartSeriesCollection>
+                        <AccumulationChartTooltipSettings Enable="true"></AccumulationChartTooltipSettings>
+                        <AccumulationChartLegendSettings Visible="false"></AccumulationChartLegendSettings>
+                    </SfAccumulationChart>
+                </ContentTemplate>
+            </DashboardLayoutPanel>
+            <DashboardLayoutPanel Column="0" Row="4" SizeX="8" SizeY="3">
+                <HeaderTemplate>
+                    <span class="title">Recent Transactions</span>
+                </HeaderTemplate>
+                <ContentTemplate>
+                    <SfGrid TValue="TransactionData" DataSource="@TransactData" Width="100%" Height="100%" AllowSorting="true" EnableHover="false" AllowPaging="false">
+                        <GridColumns>
+                            <GridColumn Field="@nameof(TransactionData.TransactoinId)" HeaderText="Transaction ID" Width="120" TextAlign="TextAlign.Center"></GridColumn>
+                            <GridColumn Field="@nameof(TransactionData.Category)" HeaderText="Category" Width="120">
+                                <Template>
+                                    @{
+                                        var expense = (context as TransactionData);
+                                        if (expense != null)
+                                        {
+                                            <div class="normalRes">
+                                                <div class="category-icon @expense.IconCss"></div>
+                                                <div class='category-text'>@expense.Category</div>
+                                            </div>
+                                        }
+                                    }
+                                </Template>
+                            </GridColumn>
+                            <GridColumn Field="@nameof(TransactionData.PaymentMode)" HeaderText="Payment Mode" Width="160" TextAlign="TextAlign.Center"></GridColumn>
+                            <GridColumn Field="@nameof(TransactionData.Description)" HeaderText="Description" Width="160" TextAlign="TextAlign.Center"></GridColumn>
+                            <GridColumn Field="@nameof(TransactionData.Amount)" HeaderText="Amount" Width="120" TextAlign="TextAlign.Center">
+                                <Template>
+                                    @{
+                                        var expense = (context as TransactionData);
+                                        if (expense != null)
+                                        {
+                                            <div class="normalRes">
+                                                <div class='amt-payment @(expense.IsExpense ? "expense-payment" : "income-payment")'>
+                                                    <span>$</span><span>@expense.Amount</span>
+                                                </div>
+                                            </div>
+                                        }
+                                    }
+                                </Template>
+                            </GridColumn>
+                        </GridColumns>
+                    </SfGrid>
+                </ContentTemplate>
+            </DashboardLayoutPanel>
+        </DashboardLayoutPanels>
+    </SfDashboardLayout>
+</div>
+
+<style>
+    .e-dashboardlayout {
+        padding: 10px;
+    }
+    .root-container {
+        height: 100%;
+    }
+    .title {
+        font-size: 16px;
+        font-weight: 400;
+    }
+    .category-text {
+        float: left;
+        line-height: 30px;
+    }
+    .category-icon {
+        float: left;
+        background-repeat: no-repeat;
+        background-position-x: center;
+        background-size: 100%;
+        height: 30px;
+        width: 30px;
+        display: inline-block;
+        margin-right: 10px;
+    }
+    .category-icon.food {
+        background-image: url("https://cdn.syncfusion.com/blazor/images/dashboard-layout/food.png");
+    }
+    .category-icon.travel {
+        background-image: url("https://cdn.syncfusion.com/blazor/images/dashboard-layout/transport.png");
+    }
+    .category-icon.housing {
+        background-image: url("https://cdn.syncfusion.com/blazor/images/dashboard-layout/house.png");
+    }
+    .category-icon.extra-income {
+        background-image: url("https://cdn.syncfusion.com/blazor/images/dashboard-layout/extra.png");
+    }
+    .item-container {
+        display: flex;
+        text-align: center;
+        height: 70%;
+        padding: 2rem;
+        font-size: 22px;
+        font-weight: 400;
+    }
+    .item-container.income { color: #17a00e; }
+    .item-container.balance { color: #008cff; }
+    .item-container.transaction { color: #f41127; }
+    .item-container.expense { color: #ca765a; }
+    .bottom-container {
+        text-align: center;
+        font-weight: 400;
+        font-size: 16px;
+        color: #4c5258;
+    }
+    .amt-payment.expense-payment {
+        font-weight: bold;
+        color: #ff5e65;
+    }
+    .amt-payment.income-payment {
+        font-weight: bold;
+        color: #04cd93;
+    }
+    .auto-left { margin-left: auto; }
+    .e-panel-content { padding: 1rem; }
+    .e-icon.balance::after,
+    .e-icon.expense::after,
+    .e-icon.income::after,
+    .e-icon.transaction::after {
+        content: "";
+        font-size: 24px;
+    }
+    .e-headercelldiv span.e-headertext {
+        font-size: 14px;
+        font-weight: 500;
+    }
+    .e-grid .e-rowcell { font-size: 13px; }
+</style>
+
+@code {
+    SfDashboardLayout? dashboardObject;
+    private Theme Theme { get; set; }
+    private double[] Spacing = new double[] { 15, 15 };
+    private double Ratio = 160 / 100;
+
+    private List<TransactionData> TransactData = new()
+    {
+        new() { Category = "Food", Amount = 6, PaymentMode = "Debit Card", IconCss = "food", IsExpense = true, IsIncome = false, TransactoinId = "#131614678", Description = "Palmetto Cheese, Mint julep" },
+        new() { Category = "Transportation", Amount = 7, PaymentMode = "Debit Card", IconCss = "travel", IsExpense = true, IsIncome = false, TransactoinId = "#131416876", Description = "Other vehicle expenses" },
+        new() { Category = "Housing", Amount = 20, PaymentMode = "Credit Card", IconCss = "housing", IsExpense = true, IsIncome = false, TransactoinId = "#1711148579", Description = "Laundry and cleaning supplies" },
+        new() { Category = "Extra Income", Amount = 110, PaymentMode = "Cash", IconCss = "extra-income", IsExpense = false, IsIncome = true, TransactoinId = "#1922419785", Description = "Income from Sale" },
+        new() { Category = "Food", Amount = 10, PaymentMode = "Credit Card", IconCss = "food", IsExpense = true, IsIncome = false, TransactoinId = "#2744145880", Description = "Muffuletta sandwich, Mint julep" }
+    };
+
+    private List<RenderingData> PieRenderingData = new()
+    {
+        new() { X = "Mortgage / Rent", Text = "15.76%", Y = 6000 },
+        new() { X = "Food", Text = "12.79%", Y = 4866 },
+        new() { X = "Utilities", Text = "10.93%", Y = 4160 },
+        new() { X = "Bills", Text = "10.4%", Y = 3960 },
+        new() { X = "Shopping", Text = "8.87%", Y = 3375 },
+        new() { X = "Transportation", Text = "8.49%", Y = 3230 },
+        new() { X = "Insurance", Text = "7.59%", Y = 2890 },
+        new() { X = "Health Care", Text = "6.52%", Y = 2480 },
+        new() { X = "Clothing", Text = "5.92%", Y = 2255 },
+        new() { X = "Others", Text = "12.73%", Y = 4844 }
+    };
+
+    private List<IncomeExpense> IncomeExpenseData = new()
+    {
+        new() { Period = new DateTime(2021, 01, 01), Income = 7490, Expense = 6973 },
+        new() { Period = new DateTime(2021, 02, 01), Income = 6840, Expense = 6060 },
+        new() { Period = new DateTime(2021, 03, 01), Income = 6060, Expense = 5500 },
+        new() { Period = new DateTime(2021, 04, 01), Income = 8190, Expense = 7059 },
+        new() { Period = new DateTime(2021, 05, 01), Income = 7320, Expense = 6333 },
+        new() { Period = new DateTime(2021, 06, 01), Income = 7380, Expense = 6135 }
+    };
+
+    private string[] palettes = new string[]
+    {
+        "#61EFCD", "#CDDE1F", "#FEC200", "#CA765A", "#2485FA", "#F57D7D", "#C152D2",
+        "#8854D9", "#3D4EB8", "#00BCD7", "#4472c4", "#ed7d31", "#ffc000", "#70ad47", "#5b9bd5", "#c1c1c1", "#6f6fe2", "#e269ae", "#9e480e", "#997300"
+    };
+
+    protected override void OnInitialized()
+    {
+        Theme = Theme.Fluent2;
+    }
+
+    private class RenderingData
+    {
+        public string? X { get; set; }
+        public int Y { get; set; }
+        public string? Text { get; set; }
+    }
+
+    private class IncomeExpense
+    {
+        public DateTime Period { get; set; }
+        public int Income { get; set; }
+        public int Expense { get; set; }
+    }
+
+    private class TransactionData
+    {
+        public string? Category { get; set; }
+        public string? Description { get; set; }
+        public string? PaymentMode { get; set; }
+        public string? IconCss { get; set; }
+        public string? TransactoinId { get; set; }
+        public bool IsIncome { get; set; }
+        public bool IsExpense { get; set; }
+        public int Amount { get; set; }
+    }
+}

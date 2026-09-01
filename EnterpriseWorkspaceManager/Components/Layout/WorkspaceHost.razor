@@ -1,0 +1,205 @@
+@page "/"
+@implements IDisposable
+@inject WorkspaceStateService Workspace
+@using Syncfusion.Blazor.Spinner
+@using Syncfusion.Blazor.Navigations
+@using SpinnerType = Syncfusion.Blazor.Spinner.SpinnerType
+
+
+<div class="mdi-host">
+
+    <SfSpinner Visible="_loading"
+               Type="SpinnerType.Fluent2"
+               Label="Loading workspace…"
+               ZIndex="21">
+    </SfSpinner>
+
+    <SfTab CssClass="ewm-mdi-tab"
+           ShowCloseButton="true" 
+           LoadOn="ContentLoad.Dynamic"
+           @bind-SelectedItem="Workspace.ActiveIndex">
+        <TabEvents Selecting="OnTabSelecting"
+                   Removing="OnTabRemoving">
+        </TabEvents>
+        <TabItems>
+
+            @for (int i = 0; i < _tabs.Count; i++)
+            {
+                var tab = _tabs[i];
+                var moduleType = ResolveComponent(tab.Key);
+
+                <TabItem>
+
+                    <HeaderTemplate>
+                        <span class="mdi-tab-header">
+                            <span class="@tab.IconCss" aria-hidden="true"></span>
+                            <span>@tab.Title</span>
+                        </span>
+                    </HeaderTemplate>
+
+                    <ContentTemplate>
+                        <div class="mdi-tab-body" role="tabpanel">
+                            @if (moduleType is not null)
+                            {
+                                <DynamicComponent Type="moduleType" />
+                            }
+                            else
+                            {
+                                <div class="module-not-found">
+                                    Module '@tab.Key' not found.
+                                </div>
+                            }
+                        </div>
+                    </ContentTemplate>
+
+                </TabItem>
+            }
+
+        </TabItems>
+
+    </SfTab>
+
+</div>
+
+@code {
+    private static readonly IReadOnlyDictionary<string, Type> ModuleRegistry =
+        new Dictionary<string, Type>(StringComparer.OrdinalIgnoreCase)
+        {
+            ["home"]        = typeof(StartPage),
+            ["dashboard"]   = typeof(DashboardModule),
+            ["employees"]   = typeof(EmployeesModule),
+            ["documents"]   = typeof(DocumentsModule),
+            ["spreadsheet"] = typeof(SpreadsheetModule),
+            ["analytics"]   = typeof(AnalyticsModule),
+            ["projects"]    = typeof(ProjectsModule)
+        };
+
+
+    private IReadOnlyList<MdiTab> _tabs = Array.Empty<MdiTab>();
+
+    // The one and only spinner flag. True = spinner visible.
+    private bool _loading;
+
+    // Sequence number so only the newest transition turns the
+    // spinner off (prevents an older timeout from hiding a newer one).
+    private int _loadingSeq;
+
+   
+    private int _renderedIndex = -1;
+
+    protected override void OnInitialized()
+    {
+        _tabs = Workspace.SnapshotTabs();
+        _renderedIndex = Workspace.ActiveIndex;
+        Workspace.OnChange += HandleChange;
+
+        // The treeview (and any other path outside this host) shows the
+        // spinner through the service: `await Workspace.TriggerShow();`
+        Workspace.ShowSpinner = () => InvokeAsync(ShowLoadingAsync);
+    }
+
+    protected override Task OnAfterRenderAsync(bool firstRender)
+    {
+        // Initial app load: show the spinner for a moment while the
+        // home module mounts.
+        if (firstRender)
+        {
+            _ = ShowLoadingAsync();
+        }
+        return Task.CompletedTask;
+    }
+
+    // Shows the spinner, gives the new tab content a moment to mount,
+    // then hides it. Simple time-based overlay for module transitions.
+    private async Task ShowLoadingAsync()
+    {
+        var seq = ++_loadingSeq;
+
+        _loading = true;
+        StateHasChanged();
+
+        // Let the new module render underneath the spinner. Rendering
+        // happens while we're awaiting, so the user sees the spinner
+        // instead of a blank tab body.
+        await Task.Delay(400);
+
+        // Only the latest call may hide the spinner.
+        if (seq == _loadingSeq)
+        {
+            _loading = false;
+            StateHasChanged();
+        }
+    }
+
+    private void HandleChange()
+    {
+       
+        var listChanged = false;
+        var current = Workspace.SnapshotTabs();
+        if (current.Count != _tabs.Count)
+        {
+            listChanged = true;
+        }
+        else
+        {
+            for (int i = 0; i < current.Count; i++)
+            {
+                if (!ReferenceEquals(current[i], _tabs[i]))
+                {
+                    listChanged = true;
+                    break;
+                }
+            }
+        }
+
+        var indexChanged = Workspace.ActiveIndex != _renderedIndex;
+
+        if (listChanged)
+        {
+            _tabs = current;
+        }
+
+        if (listChanged || indexChanged)
+        {
+            _renderedIndex = Workspace.ActiveIndex;
+            InvokeAsync(StateHasChanged);
+        }
+    }
+
+    // Tab header click: show the spinner while the tab switches.
+    // Fire-and-forget so we don't delay the actual tab switch.
+    private Task OnTabSelecting(SelectingEventArgs args)
+    {
+        _ = ShowLoadingAsync();
+        return Task.CompletedTask;
+    }
+
+    // Tab close (X) click: only allow non-home tabs to be removed.
+    // The home tab is always seeded at index 0 in WorkspaceStateService
+    // with IsCloseable=false, but we defend in depth here too — the model
+    // and the view agree on what is permanent.
+    //
+    // Syncfusion's RemoveEventArgs exposes the tab being removed as
+    // `RemovedIndex` (int). Confirmed against the official API reference:
+    // https://help.syncfusion.com/cr/blazor/Syncfusion.Blazor.Navigations.RemoveEventArgs.html
+    private void OnTabRemoving(RemoveEventArgs args)
+    {
+        var index = args.RemovedIndex;
+        if (index < 0 || index >= _tabs.Count) return;
+
+        var tab = _tabs[index];
+        if (tab.IsHome || !tab.IsCloseable)
+        {
+            args.Cancel = true;
+        }
+    }
+
+    private static Type? ResolveComponent(string key)
+        => ModuleRegistry.TryGetValue(key, out var type) ? type : null;
+
+    public void Dispose()
+    {
+        Workspace.OnChange -= HandleChange;
+        Workspace.ShowSpinner = null;
+    }
+}

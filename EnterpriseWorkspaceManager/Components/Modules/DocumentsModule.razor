@@ -1,0 +1,40 @@
+<div class="doc-root">
+    <header class="doc-header">
+        <div>
+            <h2>PDF Viewer</h2>
+            <p class="doc-sub">Review contracts, invoices and reports with zoom, search and annotation</p>
+        </div>
+        <div class="doc-header__actions">
+            <button class="ewm-btn ewm-btn--ghost" @onclick="Open">
+                <span class="e-icons e-folder-open" aria-hidden="true"></span> Open from disk
+            </button>
+            <button class="ewm-btn ewm-btn--ghost" @onclick="Print">
+                <span class="e-icons e-print" aria-hidden="true"></span> Print
+            </button>
+            <button class="ewm-btn ewm-btn--ghost" @onclick="Download">
+                <span class="e-icons e-download" aria-hidden="true"></span> Download
+            </button>
+        </div>
+    </header>
+
+    <div class="doc-pdf">
+        <SfPdfViewer2 @ref="_viewer"
+                      DocumentPath="@_docPath"
+                      Height="100%"
+                      Width="100%"
+                     >
+        </SfPdfViewer2>
+    </div>
+</div>
+
+@code {
+    private SfPdfViewer2 _viewer = default!;
+    // Embedded Syncfusion succinct PDF (well-known public sample, ~3 pages)
+    private string _docPath = "https://cdn.syncfusion.com/content/pdf/pdf-succinctly.pdf";
+
+    [Inject] private ToastService Toaster { get; set; } = default!;
+
+    private void Open()      => Toaster.Info("Use the toolbar's folder icon to open a local PDF (in-browser File API).");
+    private void Print()     => Toaster.Info("Press the toolbar's print icon to send the document to a printer.");
+    private void Download()  => Toaster.Info("Use the toolbar's download icon to save a copy of the PDF.");
+}

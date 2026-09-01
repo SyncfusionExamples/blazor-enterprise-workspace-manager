@@ -1,0 +1,91 @@
+@inherits LayoutComponentBase
+@implements IDisposable
+
+<div class="app-shell">
+    <TopBar OnHelp="ShowHelp" />
+
+    <div class="app-body">
+        <Sidebar />
+        <main class="app-workspace" role="main" aria-label="Workspace content">
+            @Body
+        </main>
+    </div>
+
+    <!-- Global notification host -->
+    <SfToast @ref="ToastRef"
+             Title="Workspace Manager"
+             Content="@_toastMessage"
+             CssClass="@_toastCss"
+             Icon="@_toastIcon"
+             Timeout="3500"
+             ShowCloseButton="true"
+             ShowProgressBar="true"
+             Target=".app-shell">
+        <ToastPosition X="Right" Y="Top" />
+        <ToastAnimationSettings>
+            <ToastShowAnimationSettings Effect="ToastEffect.SlideRightIn" Duration="300" Easing="ToastEasing.Ease" />
+            <ToastHideAnimationSettings Effect="ToastEffect.SlideRightOut" Duration="250" Easing="ToastEasing.Ease" />
+        </ToastAnimationSettings>
+    </SfToast>
+
+    <!-- Help / About dialog -->
+    <SfDialog Width="460px"
+              IsModal="true"
+              ShowCloseIcon="true"
+              Visible="@_helpVisible"
+              Header="About Enterprise Workspace Manager">
+        <DialogTemplates>
+            <Content>
+                <div class="help-content">
+                    <p><strong>Enterprise Workspace Manager</strong> is a production-style
+                    Blazor WebAssembly sample that demonstrates how multiple Syncfusion
+                    Blazor controls work together in a Windows MDI-style cross-platform
+                    enterprise workspace.</p>
+                    <ul>
+                        <li>Blazor WebAssembly on .NET 10</li>
+                        <li>Syncfusion Blazor 34.2.5 with the Fluent 2 theme</li>
+                        <li>6 modules: Dashboard, Employees, Documents, Spreadsheet, Analytics, Projects</li>
+                        <li>TreeView navigation, Tabbed MDI workspace, command bar</li>
+                    </ul>
+                    <p class="muted">© 2026 Syncfusion, Inc. — All rights reserved.</p>
+                </div>
+            </Content>
+        </DialogTemplates>
+        <DialogButtons>
+            <DialogButton Content="Close"
+                          IsPrimary="true"
+                          OnClick="@(() => _helpVisible = false)" />
+        </DialogButtons>
+    </SfDialog>
+</div>
+
+@code {
+    [Inject] private ToastService Toaster { get; set; } = default!;
+
+    private SfToast ToastRef = default!;
+    private string _toastMessage = string.Empty;
+    private string _toastIcon = "e-info toast-icons";
+    private string _toastCss = "e-toast-info";
+    private bool _helpVisible;
+
+    protected override void OnInitialized()
+    {
+        Toaster.OnShow += HandleToast;
+    }
+
+    private async void HandleToast(ToastEvent evt)
+    {
+        _toastMessage = evt.Message;
+        _toastIcon = evt.IconCss;
+        _toastCss = evt.CssClass;
+        await InvokeAsync(async () =>
+        {
+            StateHasChanged();
+            if (ToastRef != null) await ToastRef.ShowAsync();
+        });
+    }
+
+    private void ShowHelp() => _helpVisible = true;
+
+    public void Dispose() => Toaster.OnShow -= HandleToast;
+}

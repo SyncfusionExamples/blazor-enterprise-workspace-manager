@@ -1,0 +1,23 @@
+/* SpreadsheetModule.razor.css - budget sheet */
+.ss-root { display: flex; flex-direction: column; gap: 12px; height: 100%; }
+.ss-header { display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 8px; }
+.ss-header h2 { font-size: 18px; margin: 0; }
+.ss-sub { margin: 0; color: #616161; font-size: 12.5px; }
+.ss-header__actions { display: flex; gap: 6px; }
+
+.ss-tag {
+    display: inline-flex; align-items: center;
+    font-size: 11.5px; font-weight: 600;
+    padding: 2px 8px; border-radius: 12px;
+    background: #dff5df; color: #107c10;
+}
+.ss-tag--info { background: #dceeff; color: #0f6cbd; }
+
+.ss-grid { flex: 1; min-height: 540px; border: 1px solid #e1e1e1; border-radius: 6px; overflow: hidden; background: #fff; position: relative; }
+
+.ss-loading {
+    position: absolute; inset: 0;
+    display: flex; align-items: center; justify-content: center; gap: 6px;
+    color: #616161; font-size: 13px; z-index: 5; background: rgba(255,255,255,0.85);
+}
+.ss-loading .e-icons { font-size: 18px; color: #2c7ef8; }

@@ -1,0 +1,80 @@
+<aside class="sidebar" role="navigation" aria-label="Module navigation">
+    <div class="sidebar__header">
+        <span class="e-icons e-navigation"></span>
+        <span class="sidebar__title">Modules</span>
+    </div>
+
+    <SfTreeView TValue="NavNode"
+                CssClass="ewm-treeview"
+                ExpandOn="@ExpandAction.Click"
+                FullRowSelect="true">
+        <TreeViewFieldsSettings TValue="NavNode"
+                                 Id="Id"
+                                 Text="Text"
+                                 IconCss="IconCss"
+                                 Child="Children"
+                                 DataSource="@_nav.Tree">
+        </TreeViewFieldsSettings>
+        <TreeViewEvents TValue="NavNode"
+                        NodeSelected="@OnNodeSelected" />
+    </SfTreeView>
+</aside>
+
+@code {
+    [Inject] private NavigationDataService _nav { get; set; } = default!;
+    [Inject] private WorkspaceStateService Workspace { get; set; } = default!;
+    [Inject] private ToastService Toaster { get; set; } = default!;
+
+    private static readonly (string ModuleKey, string Title, string Icon)[] ModuleMap =
+    {
+        ("home",       "Start",          "e-icons e-home"),
+        ("dashboard",  "Dashboard",      "e-icons e-display"),
+        ("documents",  "PDF Viewer",     "e-icons e-organize-pdf"),
+        ("spreadsheet","Spreadsheet",    "e-icons e-table"),
+        ("employees",  "Employees",      "e-icons e-people"),
+        ("analytics",  "Analytics",      "e-icons e-chart-area"),
+        ("projects",   "Projects",       "e-icons e-kanban")
+    };
+
+    private static readonly (string ModuleKey, string Title, string Icon) NoModule = default;
+
+    private async void OnNodeSelected(NodeSelectEventArgs args)
+    {
+        if (args.NodeData is null) return;
+        var node = FindNode(_nav.Tree, args.NodeData.Id);
+        if (node is null) return;
+
+        var key = node.ModuleKey ?? node.Id;
+        var hit = NoModule;
+        for (int i = 0; i < ModuleMap.Length; i++)
+        {
+            if (ModuleMap[i].ModuleKey == key) { hit = ModuleMap[i]; break; }
+        }
+        if (hit.ModuleKey is null) return;
+
+        // Show the spinner (fire-and-forget) and open the module right
+        // away — the spinner overlay covers the tab while the new
+        // module mounts, then hides itself after a short delay.
+        _ = Workspace.TriggerShow();
+
+        Workspace.OpenModule(hit.ModuleKey, hit.Title, hit.Icon);
+
+        if (hit.ModuleKey != "home")
+            Toaster.Info($"{hit.Title} opened in workspace");
+    }
+
+    private static NavNode? FindNode(IReadOnlyList<NavNode> nodes, string id)
+    {
+        for (int i = 0; i < nodes.Count; i++)
+        {
+            var n = nodes[i];
+            if (n.Id == id) return n;
+            if (n.Children is { Count: > 0 } kids)
+            {
+                var hit = FindNode(kids, id);
+                if (hit is not null) return hit;
+            }
+        }
+        return null;
+    }
+}

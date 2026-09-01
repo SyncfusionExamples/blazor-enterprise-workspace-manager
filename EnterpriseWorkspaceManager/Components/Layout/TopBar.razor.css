@@ -1,0 +1,83 @@
+/* TopBar.razor.css - command bar / Fluent 2 chrome */
+.top-bar {
+    display: grid;
+    grid-template-columns: auto 1fr auto;
+    align-items: center;
+    height: 48px;
+    background: var(--ewm-chrome, #0f1e3d);
+    color: #fff;
+    border-bottom: 1px solid rgba(0, 0, 0, 0.25);
+    box-shadow: 0 1px 0 rgba(255, 255, 255, 0.05) inset;
+    user-select: none;
+}
+
+.top-bar__brand {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 0 16px;
+    height: 100%;
+    background: linear-gradient(180deg, rgba(255,255,255,0.06), rgba(0,0,0,0.10));
+    border-right: 1px solid rgba(255, 255, 255, 0.07);
+}
+
+.top-bar__logo {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 28px;
+    height: 28px;
+    border-radius: 6px;
+    background: linear-gradient(135deg, #2c7ef8, #6bb6ff);
+    color: #fff;
+    font-size: 16px;
+}
+
+.top-bar__title {
+    font-size: 13px;
+    font-weight: 600;
+    letter-spacing: 0.2px;
+}
+
+.top-bar__menu {
+    height: 100%;
+    display: flex;
+    align-items: center;
+    padding: 0 12px;
+    width: 100%;
+}
+
+.top-bar__menu .ewm-menu,
+.top-bar__menu .e-menu-wrapper,
+.top-bar__menu .e-menu-container,
+.top-bar__menu ul.e-menu {
+    background: transparent !important;
+    border: 0 !important;
+}
+
+/* Override Fluent 2 theme's dark menu text so the items remain readable
+   on the dark top-bar background. */
+.top-bar__menu,
+.top-bar__menu ul.e-menu,
+.top-bar__menu ul.e-menu li.e-menu-item,
+.top-bar__menu ul.e-menu li.e-menu-item a,
+.top-bar__menu ul.e-menu li.e-menu-item .e-menu-text,
+.top-bar__menu ul.e-menu li.e-menu-item .e-menu-icon,
+.top-bar__menu ul.e-menu li.e-menu-item .e-caret,
+.top-bar__menu ul.e-menu li.e-menu-item .e-menu-caret-icon {
+    color: #ffffff !important;
+    fill: #ffffff !important;
+    font-weight: 500;
+    background-color: transparent !important;
+}
+
+.top-bar__menu ul.e-menu li.e-menu-item:hover,
+.top-bar__menu ul.e-menu li.e-menu-item:focus,
+.top-bar__menu ul.e-menu li.e-menu-item.e-selected {
+    background-color: rgba(255, 255, 255, 0.10) !important;
+    color: #ffffff !important;
+}
+
+@media (max-width: 1024px) {
+    .top-bar__title { display: none; }
+}

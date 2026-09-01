@@ -1,0 +1,38 @@
+/* tokens.css - Enterprise Workspace Manager design tokens (Fluent 2 inspired) */
+:root {
+    --ewm-bg: #f3f3f3;
+    --ewm-bg-elevated: #ffffff;
+    --ewm-text: #1f1f1f;
+    --ewm-text-muted: #616161;
+    --ewm-chrome: #0f1e3d;          /* top bar / status bar */
+    --ewm-accent: #2c7ef8;          /* Fluent primary */
+    --ewm-accent-soft: #dceeff;
+    --ewm-border: #e1e1e1;
+    --ewm-border-soft: #f0f0f0;
+
+    --ewm-success: #107c10;
+    --ewm-warning: #9a5c00;
+    --ewm-danger:  #a4262c;
+    --ewm-info:    #0f6cbd;
+
+    --ewm-radius: 6px;
+    --ewm-radius-sm: 4px;
+    --ewm-shadow: 0 1px 2px rgba(0,0,0,0.06);
+}
+
+html, body, #app { height: 100%; margin: 0; }
+
+body {
+    font-family: "Segoe UI", "Segoe UI Variable", -apple-system, BlinkMacSystemFont,
+                 "Helvetica Neue", Arial, sans-serif;
+    background: var(--ewm-bg);
+    color: var(--ewm-text);
+    font-size: 14px;
+    line-height: 1.5;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+}
+
+@media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after { transition: none !important; animation: none !important; }
+}

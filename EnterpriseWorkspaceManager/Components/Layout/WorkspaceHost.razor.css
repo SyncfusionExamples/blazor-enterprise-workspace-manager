@@ -1,0 +1,86 @@
+
+
+.mdi-host {
+    flex: 1 1 auto;
+    display: flex;
+    min-width: 0;
+    min-height: 0;
+    background: #ffffff;
+    border-top: 1px solid #e1e1e1;
+    border-left: 1px solid #e1e1e1;
+    border-right: 1px solid #e1e1e1;
+    border-radius: 6px 6px 0 0;
+    margin: 6px 6px 0 6px;
+    position: relative; 
+}
+
+.mdi-host .ewm-mdi-tab.e-tab {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    min-height: 0;
+    min-width: 0;
+    overflow: hidden;           
+    position: relative;
+}
+
+.mdi-host .e-tab-header {
+    background: #fafafa;
+    border-bottom: 1px solid #e1e1e1;
+    flex: 0 0 auto;              
+}
+
+.mdi-host .e-tab .e-content {
+    flex: 1 1 auto;
+    min-height: 0;             
+    min-width: 0;
+    overflow: auto;             
+    background: #ffffff;
+    position: relative;
+}
+
+
+.mdi-host .e-tab .e-content .e-item {
+    display: block;
+    padding: 0;
+    margin: 0;
+    min-height: 0;
+    min-width: 0;
+    overflow: visible !important;
+    height: auto;
+    contain: layout style;          
+}
+
+
+.mdi-tab-body {
+    display: block;
+    padding: 16px;
+    min-height: 100%;           
+    box-sizing: border-box;
+    min-width: 0;
+    overflow: visible;          
+    contain: content;           
+}
+
+.mdi-tab-header {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 13px;
+}
+
+.mdi-tab-header .e-icons {
+    font-size: 13px;
+    color: #0066CC;
+}
+
+.module-not-found {
+    padding: 24px;
+    color: #b32121;
+    font-size: 13px;
+    background: #fff4f4;
+    border: 1px solid #f3c2c2;
+    border-radius: 4px;
+    margin: 16px;
+}
+

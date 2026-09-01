@@ -1,0 +1,83 @@
+@inject AnalyticsDataService Data
+@using AccumulationLabelPosition = Syncfusion.Blazor.Charts.AccumulationLabelPosition
+@using LegendPosition           = Syncfusion.Blazor.Charts.LegendPosition
+@using LabelPosition            = Syncfusion.Blazor.Charts.LabelPosition
+@using ValueType                = Syncfusion.Blazor.Charts.ValueType
+@using ChartSeriesType          = Syncfusion.Blazor.Charts.ChartSeriesType
+
+<div class="ana-root">
+    <header class="ana-header">
+        <div>
+            <h2>Analytics</h2>
+            <p class="ana-sub">Revenue, performance and growth trends across the organization</p>
+        </div>
+    </header>
+
+    <div class="ana-grid">
+        <article class="ana-card">
+            <header class="ana-card__head">
+                <span class="e-icons e-chart-2d-pie-2" aria-hidden="true"></span>
+                <h3>Revenue by Category</h3>
+            </header>
+            <div class="ana-card__body">
+                <SfAccumulationChart Height="280px" Width="100%">
+                    <AccumulationChartSeriesCollection>
+                        <AccumulationChartSeries DataSource="@Data.RevenueByCategory"
+                                                 XName="Category" YName="Value"
+                                                 Name="Revenue"
+                                                 Explode="true"
+                                                 InnerRadius="50%">
+                            <AccumulationDataLabelSettings Visible="true" Name="Category" Position="AccumulationLabelPosition.Outside" />
+                        </AccumulationChartSeries>
+                    </AccumulationChartSeriesCollection>
+                    <AccumulationChartLegendSettings Visible="true" Position="LegendPosition.Bottom" />
+                    <AccumulationChartTooltipSettings Enable="true" Format="<b>${point.x}</b>: ${point.y}%" />
+                </SfAccumulationChart>
+            </div>
+        </article>
+
+        <article class="ana-card">
+            <header class="ana-card__head">
+                <span class="e-icons e-chart-insert-column" aria-hidden="true"></span>
+                <h3>Quarterly Performance: Target vs Actual</h3>
+            </header>
+            <div class="ana-card__body">
+                <SfChart Height="280px" Width="100%">
+                    <ChartPrimaryXAxis ValueType="ValueType.Category"></ChartPrimaryXAxis>
+                    <ChartPrimaryYAxis Title="USD (k)"></ChartPrimaryYAxis>
+                    <ChartTooltipSettings Enable="true"></ChartTooltipSettings>
+                    <ChartLegendSettings Visible="true" Position="LegendPosition.Top"></ChartLegendSettings>
+                    <ChartSeriesCollection>
+                        <ChartSeries DataSource="@Data.Quarterly" XName="Quarter" YName="Target" Name="Target" Type="ChartSeriesType.Column" Fill="#a4b3c6" />
+                        <ChartSeries DataSource="@Data.Quarterly" XName="Quarter" YName="Actual" Name="Actual" Type="ChartSeriesType.Column" Fill="#2c7ef8">
+                            <ChartMarker Visible="true"></ChartMarker>
+                            <ChartDataLabel Visible="true" Position="LabelPosition.Top"></ChartDataLabel>
+                        </ChartSeries>
+                    </ChartSeriesCollection>
+                </SfChart>
+            </div>
+        </article>
+
+        <article class="ana-card ana-card--wide">
+            <header class="ana-card__head">
+                <span class="e-icons e-chart-insert-line" aria-hidden="true"></span>
+                <h3>User &amp; Revenue Growth (2021 – 2026)</h3>
+            </header>
+            <div class="ana-card__body">
+                <SfChart Height="320px" Width="100%">
+                    <ChartPrimaryXAxis ValueType="ValueType.Category"></ChartPrimaryXAxis>
+                    <ChartPrimaryYAxis Title="Active users (k)"></ChartPrimaryYAxis>
+                    <ChartAxes>
+                        <ChartAxis Name="RevenueAxis" OpposedPosition="true" Title="Revenue (M USD)"></ChartAxis>
+                    </ChartAxes>
+                    <ChartTooltipSettings Enable="true" Shared="true"></ChartTooltipSettings>
+                    <ChartLegendSettings Visible="true" Position="LegendPosition.Top"></ChartLegendSettings>
+                    <ChartSeriesCollection>
+                        <ChartSeries DataSource="@Data.Growth" XName="Year" YName="Users" Name="Users (k)" Type="ChartSeriesType.SplineArea" Fill="rgba(44,126,248,0.20)" />
+                        <ChartSeries DataSource="@Data.Growth" XName="Year" YName="Revenue" Name="Revenue (M)" Type="ChartSeriesType.Spline" YAxisName="RevenueAxis" Fill="#107c10" Width="3" />
+                    </ChartSeriesCollection>
+                </SfChart>
+            </div>
+        </article>
+    </div>
+</div>

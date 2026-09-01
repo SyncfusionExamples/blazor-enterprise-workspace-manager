@@ -1,0 +1,146 @@
+@inject ProjectDataService Data
+@inject ToastService Toaster
+@using TextAlign = Syncfusion.Blazor.Grids.TextAlign
+@using ColumnType = Syncfusion.Blazor.Grids.ColumnType
+@using GridLine = Syncfusion.Blazor.Grids.GridLine
+
+<div class="prj-root">
+    <header class="prj-header">
+        <div>
+            <h2>Project Explorer</h2>
+            <p class="prj-sub">Master-detail · @Data.Hierarchy.Count workstreams · @Data.Tasks.Count total tasks</p>
+        </div>
+    </header>
+
+    <div class="prj-master-detail">
+        <aside class="prj-tree">
+            <div class="prj-tree__head">
+                <span class="e-icons e-folder" aria-hidden="true"></span>
+                <span>Project hierarchy</span>
+            </div>
+            <SfTreeView TValue="ProjectNode"
+                        CssClass="ewm-project-tree"
+                        ExpandOn="@ExpandAction.Click"
+                        FullRowSelect="true">
+                <TreeViewFieldsSettings TValue="ProjectNode"
+                                         Id="Id"
+                                         Text="Name"
+                                         IconCss="IconCss"
+                                         Child="Children"
+                                         DataSource="@Data.Hierarchy">
+                </TreeViewFieldsSettings>
+                <TreeViewEvents TValue="ProjectNode" NodeSelected="OnTreeSelected" />
+            </SfTreeView>
+        </aside>
+
+        <section class="prj-detail">
+            <header class="prj-detail__head">
+                <div>
+                    <h3>@(_selectedNodeName ?? "Select a project")</h3>
+                    <p class="prj-detail__sub">@_selectedDescription</p>
+                </div>
+                @if (!string.IsNullOrEmpty(_selectedNodeId))
+                {
+                    <div class="prj-detail__chips">
+                        <span class="prj-chip">@_selectedStatus</span>
+                        <span class="prj-chip prj-chip--ok">@_selectedProgress% complete</span>
+                        <span class="prj-chip">@(_tasks?.Count ?? 0) tasks</span>
+                    </div>
+                }
+            </header>
+
+            <SfGrid TValue="ProjectTask"
+                    DataSource="@_tasks"
+                    AllowSorting="true"
+                    AllowFiltering="true"
+                    AllowPaging="true"
+                    Width="100%"
+                    Height="100%"
+                    GridLines="GridLine.Default">
+                <GridPageSettings PageSize="8"></GridPageSettings>
+                <GridColumns>
+                    <GridColumn Field="@nameof(ProjectTask.Id)" HeaderText="#" Width="60" IsPrimaryKey="true" TextAlign="TextAlign.Right" />
+                    <GridColumn Field="@nameof(ProjectTask.TaskName)" HeaderText="Task" Width="220" />
+                    <GridColumn Field="@nameof(ProjectTask.Assignee)" HeaderText="Assignee" Width="140" />
+                    <GridColumn Field="@nameof(ProjectTask.DueDate)" HeaderText="Due" Format="d" Width="110" Type="ColumnType.Date" TextAlign="TextAlign.Right" />
+                    <GridColumn Field="@nameof(ProjectTask.Priority)" HeaderText="Priority" Width="100">
+                        <Template>
+                            @{
+                                var p = (context as ProjectTask)!.Priority;
+                                var cls = p == "High" ? "prj-tag--danger" : p == "Medium" ? "prj-tag--warning" : "prj-tag--ok";
+                            }
+                            <span class="prj-tag @cls">@p</span>
+                        </Template>
+                    </GridColumn>
+                    <GridColumn Field="@nameof(ProjectTask.Status)" HeaderText="Status" Width="120">
+                        <Template>
+                            @{
+                                var s = (context as ProjectTask)!.Status;
+                                var cls = s switch
+                                {
+                                    "Done" => "prj-tag--ok",
+                                    "In Progress" => "prj-tag--info",
+                                    "Review" => "prj-tag--info",
+                                    "Blocked" => "prj-tag--danger",
+                                    _ => "prj-tag--neutral"
+                                };
+                            }
+                            <span class="prj-tag @cls">@s</span>
+                        </Template>
+                    </GridColumn>
+                    <GridColumn Field="@nameof(ProjectTask.Progress)" HeaderText="Progress" Width="160">
+                        <Template>
+                            @{
+                                var pr = (int)((context as ProjectTask)!.Progress);
+                            }
+                            <SfProgressBar Type="ProgressType.Linear" Value="@((double)pr)" Minimum="0" Maximum="100" Height="10" TrackThickness="4" ProgressThickness="4" ProgressColor="#2c7ef8" />
+                        </Template>
+                    </GridColumn>
+                </GridColumns>
+            </SfGrid>
+        </section>
+    </div>
+</div>
+
+@code {
+    private string? _selectedNodeId;
+    private string? _selectedNodeName;
+    private string _selectedDescription = "Pick a project from the tree to inspect its tasks.";
+    private string _selectedStatus = "—";
+    private int _selectedProgress;
+    private IReadOnlyList<ProjectTask>? _tasks;
+
+    private void OnTreeSelected(NodeSelectEventArgs args)
+    {
+        if (args.NodeData is null) return;
+        var id = args.NodeData.Id;
+        var node = FindNode(Data.Hierarchy, id);
+        if (node is null) return;
+
+        _selectedNodeId     = node.Id;
+        _selectedNodeName   = node.Name;
+        _selectedDescription = string.IsNullOrEmpty(node.Description) ? "Workstream" : node.Description;
+        _selectedStatus     = node.Status;
+        _selectedProgress   = node.Progress;
+        _tasks              = GetTasksFor(node.Id);
+        Toaster.Info($"{node.Name}: {_tasks.Count} task(s)");
+    }
+
+    private IReadOnlyList<ProjectTask> GetTasksFor(string projectId)
+        => Data.TasksByProject.TryGetValue(projectId, out var hits) ? hits : Array.Empty<ProjectTask>();
+
+    private static ProjectNode? FindNode(IReadOnlyList<ProjectNode> nodes, string id)
+    {
+        for (int i = 0; i < nodes.Count; i++)
+        {
+            var n = nodes[i];
+            if (n.Id == id) return n;
+            if (n.Children is { Count: > 0 } kids)
+            {
+                var hit = FindNode(kids, id);
+                if (hit is not null) return hit;
+            }
+        }
+        return null;
+    }
+}

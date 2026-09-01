@@ -1,0 +1,143 @@
+@inject EmployeeDataService Data
+@inject ToastService Toaster
+@using TextAlign = Syncfusion.Blazor.Grids.TextAlign
+@using SortDirection = Syncfusion.Blazor.Grids.SortDirection
+@using FilterType = Syncfusion.Blazor.Grids.FilterType
+@using ColumnType = Syncfusion.Blazor.Grids.ColumnType
+@using FailureEventArgs = Syncfusion.Blazor.Grids.FailureEventArgs
+@using GridLine = Syncfusion.Blazor.Grids.GridLine
+
+<div class="emp-root">
+    <header class="emp-header">
+        <div>
+            <h2>Employee Management</h2>
+            <p class="emp-sub">@Data.Employees.Count employees · sorted, filtered, grouped, exported</p>
+        </div>
+        <div class="emp-header__actions">
+            <span class="emp-tag emp-tag--primary">@_activeCount Active</span>
+            <span class="emp-tag emp-tag--warning">@_onLeaveCount On Leave</span>
+        </div>
+    </header>
+
+    <SfGrid @ref="_grid"
+            TValue="Employee"
+            DataSource="@Data.Employees"
+            AllowPaging="true"
+            AllowSorting="true"
+            AllowFiltering="true"
+            AllowGrouping="true"
+            AllowResizing="true"
+            AllowReordering="true"
+            ShowColumnChooser="true"
+            ShowColumnMenu="true"
+            AllowExcelExport="true"
+            AllowPdfExport="true"
+            ID="Grid"
+            Toolbar="@_toolbar"
+            GridLines="GridLine.Default">
+        <GridSortSettings>
+            <GridSortColumns>
+                <GridSortColumn Field="@nameof(Employee.HireDate)" Direction="SortDirection.Descending"></GridSortColumn>
+            </GridSortColumns>
+        </GridSortSettings>
+        <GridPageSettings PageSize="10" PageSizes="@(new int[] { 5, 10, 20, 50, 100 })"></GridPageSettings>
+        <GridFilterSettings Type="FilterType.Excel"></GridFilterSettings>
+        <GridColumns>
+            <GridColumn Field="@nameof(Employee.Id)" HeaderText="ID" Width="80" IsPrimaryKey="true" TextAlign="TextAlign.Right" />
+            <GridColumn Field="@nameof(Employee.FullName)" HeaderText="Full name" Width="170" />
+            <GridColumn Field="@nameof(Employee.Title)" HeaderText="Title" Width="180" />
+            <GridColumn Field="@nameof(Employee.Department)" HeaderText="Department" Width="130" />
+            <GridColumn Field="@nameof(Employee.Email)" HeaderText="Email" Width="240" />
+            <GridColumn Field="@nameof(Employee.Phone)" HeaderText="Phone" Width="160" />
+            <GridColumn Field="@nameof(Employee.Location)" HeaderText="Location" Width="160" />
+            <GridColumn Field="@nameof(Employee.HireDate)" HeaderText="Hire date" Format="d" Width="120" Type="ColumnType.Date" TextAlign="TextAlign.Right" />
+            <GridColumn Field="@nameof(Employee.Salary)" HeaderText="Salary" Format="C0" Width="120" TextAlign="TextAlign.Right" />
+            <GridColumn Field="@nameof(Employee.Status)" HeaderText="Status" Width="110">
+                <Template>
+                    @{
+                        var e = (context as Employee)!;
+                        var cls = e.Status == "Active" ? "emp-tag--success" : "emp-tag--warning";
+                    }
+                    <span class="emp-tag @cls">@e.Status</span>
+                </Template>
+            </GridColumn>
+            <GridColumn Field="@nameof(Employee.PerformanceRating)" HeaderText="Rating" Width="100" TextAlign="TextAlign.Center">
+                <Template>
+                    @{
+                        var r = (int)((context as Employee)!.PerformanceRating);
+                    }
+                    <span class="emp-rating" aria-label="Performance rating @r of 5">
+                        @for (int i = 0; i < 5; i++)
+                        {
+                            <span class="emp-rating__star @(i < r ? "is-on" : "")">★</span>
+                        }
+                    </span>
+                </Template>
+            </GridColumn>
+        </GridColumns>
+        <GridEvents TValue="Employee"
+                    OnToolbarClick="OnToolbarClick"
+                    OnActionFailure="OnActionFailure"
+                    RowSelected="OnRowSelected" />
+    </SfGrid>
+</div>
+
+@code {
+    private SfGrid<Employee> _grid = default!;
+    private int _activeCount;
+    private int _onLeaveCount;
+
+    private readonly List<object> _toolbar = new() {
+        "Search", "ColumnChooser",
+        new Syncfusion.Blazor.Navigations.ItemModel { Text = "Expand all groups",  TooltipText = "Expand all groups", PrefixIcon = "e-icons e-chevron-down", Id = "expandAll" },
+        new Syncfusion.Blazor.Navigations.ItemModel { Text = "Collapse all groups",TooltipText = "Collapse all groups", PrefixIcon = "e-icons e-chevron-up",   Id = "collapseAll" },
+        "ExcelExport", "PdfExport", "CsvExport"
+    };
+
+    protected override void OnInitialized()
+    {
+        // Cache the two status counts once; the dataset is immutable for
+        // the life of the singleton service so this never needs to re-run.
+        var employees = Data.Employees;
+        for (int i = 0; i < employees.Count; i++)
+        {
+            if (employees[i].Status == "Active") _activeCount++;
+            else if (employees[i].Status == "On Leave") _onLeaveCount++;
+        }
+    }
+
+    private async Task OnToolbarClick(Syncfusion.Blazor.Navigations.ClickEventArgs args)
+    {
+        switch (args.Item.Id)
+        {
+            case "Grid_excelexport":
+                Toaster.Info("Exporting employees to Excel…");
+                await _grid.ExportToExcelAsync();
+                break;
+            case "Grid_pdfexport":
+                Toaster.Info("Exporting employees to PDF…");
+                await _grid.ExportToPdfAsync();
+                break;
+            case "Grid_csvexport":
+                Toaster.Info("Exporting employees to CSV…");
+                await _grid.ExportToCsvAsync();
+                break;
+            case "expandAll":
+                await _grid.ExpandAllGroupAsync();
+                break;
+            case "collapseAll":
+                await _grid.CollapseAllGroupAsync();
+                break;
+        }
+    }
+
+    private void OnRowSelected(RowSelectEventArgs<Employee> args)
+    {
+        // demo: notify when a row is selected
+        if (args.Data is not null)
+            Toaster.Info($"Selected {args.Data.FullName}");
+    }
+
+    private void OnActionFailure(Syncfusion.Blazor.Grids.FailureEventArgs args)
+        => Toaster.Error($"Grid error: {args.Error?.Message}");
+}
